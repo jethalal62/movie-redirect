@@ -3,28 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <title>Redirecting...</title>
-  <!-- Content Security Policy: Allow our own domain, data URIs, and the required external domains -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://cdn.jsdelivr.net https://itrvfwwxjoedvrmhkkvi.supabase.co https://jethalal62.github.io; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; connect-src 'self' https://itrvfwwxjoedvrmhkkvi.supabase.co; img-src 'self' data: https://jethalal62.github.io;">
-  <style>
-    /* Minimal styling; the page is meant to auto-redirect, so no UI is needed */
-    body { margin: 0; padding: 0; }
-  </style>
+  <!-- Updated CSP to allow resources from self, cdn.jsdelivr.net, Supabase, and your GitHub Pages domain -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://cdn.jsdelivr.net https://itrvfwwxjoedvrmhkkvi.supabase.co https://jethalal62.github.io; img-src 'self' data: https://jethalal62.github.io;">
   <script type="module">
-    // Import the Supabase client from JSDelivr CDN
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-    // Initialize Supabase with your project details
+    // Initialize Supabase client
     const supabaseUrl = "https://itrvfwwxjoedvrmhkkvi.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0cnZmd3d4am9lZHZybWhra3ZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA1NzIwMTYsImV4cCI6MjA1NjE0ODAxNn0.-XZZTiEBhy75cIWo_IpcYFWET7ckSfu0b6l4-ev0S0s"; // Replace with your actual anon key
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0cnZmd3d4am9lZHZybWhra3ZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA1NzIwMTYsImV4cCI6MjA1NjE0ODAxNn0.-XZZTiEBhy75cIWo_IpcYFWET7ckSfu0b6l4-ev0S0s";  // Replace with your actual anon key
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Read URL parameters
+    // Read URL parameters: movie ID and action
     const urlParams = new URLSearchParams(window.location.search);
     const movieId = urlParams.get('id');    // e.g., "skyforce_1080"
-    const action = urlParams.get('action');   // e.g., "download", "stream", or "telegram"
+    const action = urlParams.get('action');   // e.g., "stream", "download", or "telegram"
     console.log("Movie ID from URL:", movieId, "Action:", action);
 
-    // If parameters are missing, show an error message
     if (!movieId || !action) {
       document.body.innerHTML = "<h1>Error: Missing required parameters.</h1>";
     } else {
@@ -33,8 +27,8 @@
 
     async function fetchAndRedirect() {
       try {
-        const timestamp = new Date().getTime(); // Cache buster
-        // Fetch movie details from Supabase; ensure your table name is correct
+        const timestamp = new Date().getTime(); // Cache-buster
+        // Fetch movie data from Supabase
         const { data, error } = await supabase
           .from('movies')
           .select('streamhg_url, cloud_download_url, telegram_url')
@@ -67,10 +61,8 @@
           return;
         }
 
-        // Append a timestamp to bypass caching and redirect immediately
-        const finalUrl = targetUrl + "?t=" + timestamp;
-        console.log("Redirecting to:", finalUrl);
-        window.location.replace(finalUrl);
+        // Redirect immediately with a timestamp appended to avoid caching
+        window.location.replace(targetUrl + "?t=" + timestamp);
       } catch (err) {
         console.error("Unexpected error:", err);
         document.body.innerHTML = `<h1>Error: ${err.message}</h1>`;
@@ -79,6 +71,5 @@
   </script>
 </head>
 <body>
-  <!-- The body remains empty since the page auto-redirects -->
 </body>
 </html>

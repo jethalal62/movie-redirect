@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>Redirecting...</title>
-  <!-- Allow images from self and your GitHub Pages domain, and allow scripts/resources from Supabase and CDN -->
+  <!-- CSP to allow necessary resources -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://cdn.jsdelivr.net https://itrvfwwxjoedvrmhkkvi.supabase.co https://jethalal62.github.io; img-src 'self' data: https://jethalal62.github.io;">
   <script type="module">
-    // Import the Supabase client
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-    // Initialize Supabase with your project details
+    // Initialize Supabase
     const supabaseUrl = "https://itrvfwwxjoedvrmhkkvi.supabase.co";
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0cnZmd3d4am9lZHZybWhra3ZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA1NzIwMTYsImV4cCI6MjA1NjE0ODAxNn0.-XZZTiEBhy75cIWo_IpcYFWET7ckSfu0b6l4-ev0S0s"; // Replace with your actual anon key
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -18,9 +17,9 @@
     const urlParams = new URLSearchParams(window.location.search);
     const movieId = urlParams.get('id');    // e.g., "skyforce_1080"
     const action = urlParams.get('action');   // e.g., "download", "stream", or "telegram"
-    console.log("Movie ID from URL:", movieId, "Action:", action);
+    console.log("Movie ID:", movieId, "Action:", action);
 
-    // Check required parameters
+    // Check for required parameters
     if (!movieId || !action) {
       document.body.innerHTML = "<h1>Error: Missing required parameters.</h1>";
     } else {
@@ -29,8 +28,8 @@
 
     async function fetchAndRedirect() {
       try {
-        const timestamp = new Date().getTime(); // Cache buster
-        // Fetch movie data from Supabase; ensure your table is named correctly (e.g., 'movies')
+        const timestamp = new Date().getTime(); // Cache-buster
+        // Fetch movie data from Supabase
         const { data, error } = await supabase
           .from('movies')
           .select('streamhg_url, cloud_download_url, telegram_url')
@@ -42,9 +41,9 @@
           console.error("Error fetching data:", error);
           return;
         }
-        console.log("Fetched data from Supabase:", data);
+        console.log("Fetched data:", data);
 
-        // Determine the target URL based on the action parameter
+        // Determine target URL based on the action parameter
         let targetUrl;
         if (action === "stream") {
           targetUrl = data.streamhg_url;
@@ -62,9 +61,14 @@
           return;
         }
 
-        // Redirect immediately with a timestamp appended to avoid caching issues
+        // Append a timestamp to avoid caching issues
         const finalUrl = targetUrl + "?t=" + timestamp;
         console.log("Redirecting to:", finalUrl);
+
+        // Debug: Show an alert with the final URL (remove or comment out for production)
+        alert("Redirecting to: " + finalUrl);
+
+        // Redirect to the final URL
         window.location.replace(finalUrl);
       } catch (err) {
         console.error("Unexpected error:", err);
